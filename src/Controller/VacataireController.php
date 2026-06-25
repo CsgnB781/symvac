@@ -50,4 +50,25 @@ final class VacataireController extends AbstractController
             'form' => $form,
         ]);
     }
+
+
+    #[Route('/vacataire/modifier/{id}', 'vacataire_edit', methods: ['GET', 'POST'])]
+    public function edit(Vacataire $vacataire, Request $request, EntityManagerInterface $manager): Response
+    {
+        $form = $this->createForm(VacataireType::class, $vacataire);
+
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $vacataire = $form->getData();
+            $manager->persist($vacataire);
+            $manager->flush();
+
+            $this->addFlash('success', 'Vacataire modifié avec succès !');
+            return $this->redirectToRoute('app_vacataire');
+        }
+
+        return $this->render('pages/vacataire/edit.html.twig', [
+            'form' => $form,
+        ]);
+    }
 }
