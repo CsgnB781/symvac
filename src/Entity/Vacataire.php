@@ -17,7 +17,7 @@ class Vacataire
     #[ORM\Column(length: 255)]
     #[Assert\NotNull]
     #[Assert\NotBlank]
-    #[Assert\Length(min: 2, max: 50)]
+    #[Assert\Length(min: 2, max: 255)]
     private ?string $nom = null;
 
     public function getId(): ?int
