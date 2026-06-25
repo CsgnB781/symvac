@@ -15,19 +15,14 @@ use Symfony\Component\Routing\Attribute\Route;
 final class VacataireController extends AbstractController
 {
     #[Route('/vacataire', name: 'app_vacataire')]
-    public function index(VacataireRepository $repository,
-                          PaginatorInterface $paginator,
-                          Request $request): Response
+    public function index(VacataireRepository $repository, PaginatorInterface $paginator, Request $request): Response
     {
         $vacataires = $paginator->paginate(
             $repository->findAll(),
             $request->query->getInt(key: 'page', default: 1),
             10
         );
-
-        return $this->render('pages/vacataire/index.html.twig', [
-            'vacataires' => $vacataires,
-        ]);
+        return $this->render('pages/vacataire/index.html.twig', ['vacataires' => $vacataires]);
     }
 
     #[Route('/vacataire/nouveau', 'vacataire_new', methods: ['GET', 'POST'])]
@@ -35,40 +30,36 @@ final class VacataireController extends AbstractController
     {
         $vacataire = new Vacataire();
         $form = $this->createForm(VacataireType::class, $vacataire);
-
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            $vacataire = $form->getData();
-            $manager->persist($vacataire);
+            $manager->persist($form->getData());
             $manager->flush();
-
             $this->addFlash('success', 'Vos changements ont été enregistrés !');
             return $this->redirectToRoute('app_vacataire');
         }
-
-        return $this->render('pages/vacataire/new.html.twig', [
-            'form' => $form,
-        ]);
+        return $this->render('pages/vacataire/new.html.twig', ['form' => $form]);
     }
-
 
     #[Route('/vacataire/modifier/{id}', 'vacataire_edit', methods: ['GET', 'POST'])]
     public function edit(Vacataire $vacataire, Request $request, EntityManagerInterface $manager): Response
     {
         $form = $this->createForm(VacataireType::class, $vacataire);
-
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            $vacataire = $form->getData();
-            $manager->persist($vacataire);
+            $manager->persist($form->getData());
             $manager->flush();
-
             $this->addFlash('success', 'Vacataire modifié avec succès !');
             return $this->redirectToRoute('app_vacataire');
         }
+        return $this->render('pages/vacataire/edit.html.twig', ['form' => $form]);
+    }
 
-        return $this->render('pages/vacataire/edit.html.twig', [
-            'form' => $form,
-        ]);
+    #[Route('/vacataire/supprimer/{id}', 'vacataire_delete', methods: ['GET'])]
+    public function delete(Vacataire $vacataire, EntityManagerInterface $manager): Response
+    {
+        $manager->remove($vacataire);
+        $manager->flush();
+        $this->addFlash('success', 'Vacataire supprimé avec succès !');
+        return $this->redirectToRoute('app_vacataire');
     }
 }
